@@ -5,8 +5,8 @@
  * @version 1.0
  */
 
-var path = require("path");
-var fs = require("fs");
+const path = require("path");
+const fs = require("fs");
 var watcher
 
 const createUpdateWrapper = (Component, valueProp = "value", changeProp = "onChange") => props => {
@@ -40,19 +40,18 @@ module.exports = class CsSwap {
 
 function settingsPanel() {
     var switchArr = []
-    let files = getFiles()
-    for(let i = 0; i < files.length; i++) {
+    getFiles().map(i=> {
         let temp = BdApi.React.createElement(SwitchItem, {
-            value: BdApi.getData("CsSwap", files[i]),
+            value: BdApi.getData("CsSwap", i),
             onChange: (value) => {
-                BdApi.saveData("CsSwap", files[i], value);
+                BdApi.saveData("CsSwap", i, value);
                 watcher.close()
                 toggled = patch()
                 watchMutate(toggled)
             }
-        }, files[i])
+        }, i)
         switchArr.push(temp)
-    }
+    });
     return switchArr
 }
 
@@ -65,12 +64,11 @@ function patch() {
 
 function getToggled() {
     var toggleArr = []
-    let files = getFiles()
-    for(let i = 0; i < files.length; i++) {
-        if (BdApi.getData("CsSwap", files[i]) == true) {
-            toggleArr.push(files[i])
+    getFiles().map(i=> {
+        if (BdApi.getData("CsSwap", i) == true) {
+            toggleArr.push(i)
         }
-    }
+      });
     return toggleArr
 }
 
@@ -80,19 +78,19 @@ function getFiles() {
 
 function getCSS(toggled) {
     var cssArr = []
-    for(let i = 0; i < toggled.length; i++) {
-        let contents = fs.readFileSync(path.resolve(__dirname, `./css/${toggled[i]}`));
+    toggled.map(i=> {
+        let contents = fs.readFileSync(path.resolve(__dirname, `./css/${i}`));
         cssArr.push(contents)
-    }
+      });
+    
     return cssArr
 }
 
 function injectCSS(contents) {
     var fullCss = ""
-    for(let i = 0; i < contents.length; i++) {
-        fullCss += contents[i]
-    }
-
+    contents.map(i=> {
+        fullCss += i
+      });
     if (document.querySelector("bd-styles #CsSwap")) {
         BdApi.clearCSS("CsSwap");
         BdApi.injectCSS("CsSwap", `${fullCss}`);
