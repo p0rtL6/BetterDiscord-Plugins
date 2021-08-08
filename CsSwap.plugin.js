@@ -63,7 +63,6 @@ function getFiles() {
 
 function injectCSS(contents) {
     const fullCss = contents.join("\n");
-    console.log(fullCss)
     if (document.querySelector("bd-styles #CsSwap")) {
         BdApi.clearCSS("CsSwap");
         BdApi.injectCSS("CsSwap", `${fullCss}`);
