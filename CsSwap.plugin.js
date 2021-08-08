@@ -39,58 +39,31 @@ module.exports = class CsSwap {
 }
 
 function settingsPanel() {
-    var switchArr = []
-    getFiles().map(i=> {
-        let temp = BdApi.React.createElement(SwitchItem, {
-            value: BdApi.getData("CsSwap", i),
-            onChange: (value) => {
-                BdApi.saveData("CsSwap", i, value);
-                watcher.close()
-                toggled = patch()
-                watchMutate(toggled)
-            }
-        }, i)
-        switchArr.push(temp)
-    });
-    return switchArr
+    return getFiles().map(i => BdApi.React.createElement(SwitchItem, {
+        value: BdApi.getData("CsSwap", i),
+        onChange: (value) => {
+            BdApi.saveData("CsSwap", i, value);
+            watcher.close()
+            toggled = patch()
+            watchMutate(toggled)
+        }
+    }, i));
 }
 
 function patch() {
-    let toggled = getToggled()
-    let contents = getCSS(toggled)
+    let toggled = getFiles().filter(e => BdApi.getData("CsSwap", e));
+    let contents = toggled.map(e => fs.readFileSync(path.resolve(__dirname, `./css/${e}`)))
     injectCSS(contents)
     return toggled
-}
-
-function getToggled() {
-    var toggleArr = []
-    getFiles().map(i=> {
-        if (BdApi.getData("CsSwap", i) == true) {
-            toggleArr.push(i)
-        }
-      });
-    return toggleArr
 }
 
 function getFiles() {
     return fs.readdirSync(path.resolve(__dirname, `./css/`))
 }
 
-function getCSS(toggled) {
-    var cssArr = []
-    toggled.map(i=> {
-        let contents = fs.readFileSync(path.resolve(__dirname, `./css/${i}`));
-        cssArr.push(contents)
-      });
-    
-    return cssArr
-}
-
 function injectCSS(contents) {
-    var fullCss = ""
-    contents.map(i=> {
-        fullCss += i
-      });
+    const fullCss = contents.join("\n");
+    console.log(fullCss)
     if (document.querySelector("bd-styles #CsSwap")) {
         BdApi.clearCSS("CsSwap");
         BdApi.injectCSS("CsSwap", `${fullCss}`);
@@ -100,7 +73,7 @@ function injectCSS(contents) {
 }
 
 function watchMutate(toggled) {
-    watcher = fs.watch(path.resolve(__dirname, './css'), (filename) => {
+    watcher = fs.watch(path.resolve(__dirname, './css'), (eventType, filename) => {
         if (toggled.includes(filename)) {
             patch()
         }
