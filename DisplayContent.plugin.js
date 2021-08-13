@@ -12,6 +12,7 @@ const https = require("https");
 const urlRegex = /(((https?:\/\/)|(www\.))[^\s]+)/g;
 const MenuItem = BdApi.findModuleByProps("MenuItem");
 const Markdown = BdApi.findModuleByProps("parseTopic");
+const channel = BdApi.findModuleByProps('getChannelId');
 const Dispatcher = BdApi.findModuleByProps("dirtyDispatch");
 const MessageContent = BdApi.findModule((m) => m?.type?.displayName === "MessageContent");
 const MessageContextMenu = BdApi.findModule((m) => m?.default?.displayName === "MessageContextMenu");
@@ -29,9 +30,9 @@ module.exports = class CopyContent {
     }
     getSettingsPanel() { }
     onSwitch() {
-        var channel = BdApi.findModuleByProps('getChannelId').getChannelId();
-        if (channel != currentChannel) {
-            currentChannel = channel
+        let chTemp = channel.getChannelId();
+        if (chTemp != currentChannel) {
+            currentChannel = chTemp
             active = {}
         }
     }
