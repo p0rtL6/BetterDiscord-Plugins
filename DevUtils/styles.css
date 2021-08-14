@@ -1,0 +1,20 @@
+#DevUtilsWrapper .inputWrapper-31_8H8 {
+    display: inline-flex;
+    margin-right: 10px;
+    width: 25%;
+}
+
+#DevUtilsModalContainer .inputWrapper-31_8H8 {
+    display: inline-flex;
+    margin-right: 15.5px;
+    width: 65%;
+}
+
+#DevUtilsWrapper button, #DevUtilsModalContainer button {
+    display: inline-flex;
+}
+
+#DevUtilsModalContainer code {
+    white-space : pre-wrap !important;
+    word-break: break-word;
+}
