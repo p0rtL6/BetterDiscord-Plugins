@@ -6,7 +6,6 @@
  */
 
 const zLibModules = Object.keys(ZLibrary.DiscordModules)
-const Markdown = BdApi.findModuleByProps("parseTopic");
 
 const createUpdateWrapper = (Component, valueProp = "value", changeProp = "onChange") => props => {
     const [value, setValue] = BdApi.React.useState(props[valueProp]);
@@ -71,54 +70,12 @@ module.exports = class DevUtils {
             return React.createElement(ErrorBoundary, null, element);
         }; StoreWrapper.forceUpdate = () => {};
 
-        function parseMd(body) {
-            return Markdown.parse(`
-            \`\`\`js
-            ${body}
-            \`\`\`
-        `);
-        }
-
         class popupContent extends React.Component {
 
             constructor(props) {
                 super(props)
-                this.state = { module: "" }
+                this.state = {  }
                 BdApi.saveData("DevUtils", "ModuleSearchEditable", this.props.res.access);
-            }
-
-            showModule = () => {
-                if (this.state.module === "") {
-                    if (typeof(this.props.res.module) == "object") {
-                    this.setState({ module: parseMd(JSON.stringify(this.props.res.module, undefined, 4)) })
-                    } else {
-                        this.setState({ module: parseMd(JSON.stringify(`${this.props.res.module}`, undefined, 4)) })
-                    }
-                } else {
-                    this.setState({ module: "" })
-                }
-            }
-
-            reparseModule = () => {
-                let esModule = []
-                let newModule = eval(BdApi.getData("DevUtils", "ModuleSearchEditable"))
-                console.log(newModule)
-                if (typeof(newModule) == "object") {
-                    if (newModule.__esModule == true) {
-                        for (const key in newModule) {
-                            if (typeof(newModule[key]) == "object") {
-                                esModule.push(JSON.stringify(newModule[key], undefined, 4))
-                            } else {
-                                esModule.push(JSON.stringify(`${newModule[key]}`, undefined, 4))
-                            }
-                        }
-                        this.setState({ module: parseMd(JSON.stringify(esModule.join(), undefined, 4)) })
-                    } else {
-                        this.setState({ module: parseMd(JSON.stringify(newModule, undefined, 4)) })
-                    }
-                } else {
-                        this.setState({ module: parseMd(JSON.stringify(`${newModule}`, undefined, 4)) })
-                }
             }
 
             render() {
@@ -134,7 +91,6 @@ module.exports = class DevUtils {
                     style: {
                         color: "#ddd",
                         fontSize: 15,
-                        marginBottom: "10px",
                         height: "44px"
                     },
                     value: BdApi.getData("DevUtils", "ModuleSearchEditable"),
@@ -143,25 +99,20 @@ module.exports = class DevUtils {
                     }
                 })
 
-                const updateModule = React.createElement(Button, {
-                    onClick: this.reparseModule,
-                    style: {
-                        width: "20%"
-                    }
-                }, "Update")
-
                 const viewModule = React.createElement(Button, {
-                    onClick: this.showModule,
+                    onClick: () => {
+                        console.log(this.props.res.module)
+                        BdApi.showToast("Open the console to view the module")
+                    },
                     style: {
-                        marginBottom: "10px"
+                        marginBottom: "10px",
+                        width: "20%"
                     }
                 }, "View Module")
 
-                const moduleContainer = React.createElement("h1", {}, this.state.module)
-
                 var container = React.createElement('div', {
                     id: "DevUtilsModalContainer"
-                }, responseTitle, responseAccess, updateModule, viewModule, moduleContainer);
+                }, responseTitle, responseAccess, viewModule);
                 return container;
             }   
         }
@@ -174,18 +125,25 @@ module.exports = class DevUtils {
                 res.module = ZLibrary.DiscordModules[query]
                 res.access = ` ZLibrary.DiscordModules.${query}`
             } else {
-                res.title = "Found Module"
                 if (BdApi.findModuleByDisplayName(query)) {
+                    res.title = "Found Module"
                     res.module = BdApi.findModuleByDisplayName(query)
                     res.access = `BdApi.findModuleByDisplayName('${query}')`
                 }
                 else if (BdApi.findModuleByProps(query)) {
+                    res.title = "Found Module"
                     res.module = BdApi.findModuleByProps(query)
                     res.access = `BdApi.findModuleByProps('${query}')`
                 } 
                 else if (BdApi.findModule((m) => m?.default?.displayName === query)) {
+                    res.title = "Found Module"
                     res.module = BdApi.findModule((m) => m?.default?.displayName === query)
                     res.access = `BdApi.findModule((m) => m?.default?.displayName === '${query}')`
+                }
+                else {
+                    res.title = "No Module Found"
+                    res.module = "No Module"
+                    res.access = `No Module`
                 }
             }
             
