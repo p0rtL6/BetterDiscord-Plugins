@@ -1,7 +1,6 @@
 #DevUtilsWrapper .inputWrapper-31_8H8 {
     display: inline-flex;
     margin-right: 10px;
-    width: 25%;
 }
 
 #DevUtilsModalContainer .inputWrapper-31_8H8 {
@@ -17,4 +16,12 @@
 #DevUtilsModalContainer code {
     white-space : pre-wrap !important;
     word-break: break-word;
+}
+
+#DevUtilsWrapper .select-2fjwPw {
+    width: 25%;
+    display: inline-grid;
+    background-color: var(--backgroundColor01) !important;
+    height: 44px;
+    margin-right: 10px;
 }
