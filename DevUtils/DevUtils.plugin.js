@@ -11,12 +11,12 @@ const Markdown = BdApi.findModuleByProps("parseTopic");
 const createUpdateWrapper = (Component, valueProp = "value", changeProp = "onChange") => props => {
     const [value, setValue] = BdApi.React.useState(props[valueProp]);
     return BdApi.React.createElement(Component, {
-      ...props,
-      [valueProp]: value,
-      [changeProp]: value => {
+    ...props,
+    [valueProp]: value,
+    [changeProp]: value => {
         if (typeof props[changeProp] === "function") props[changeProp](value);
         setValue(value);
-      }
+    }
     });
 }
 
@@ -35,8 +35,8 @@ const {React} = BdApi;
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
-      super(props);
-      this.state = { hasError: false };
+    super(props);
+    this.state = { hasError: false };
     }
 
     static getDerivedStateFromError(error) {
@@ -49,7 +49,8 @@ class ErrorBoundary extends React.Component {
 
     render() {
         if (this.state.hasError) {
-            return BdApi.showToast("Something Went Wrong", { type: "error" })
+            BdApi.showToast("Something Went Wrong", { type: "error" })
+            return null
         }
 
         return this.props.children; 
@@ -73,9 +74,9 @@ module.exports = class DevUtils {
         function parseMd(body) {
             return Markdown.parse(`
             \`\`\`js
-              ${body}
+            ${body}
             \`\`\`
-          `);
+        `);
         }
 
         class popupContent extends React.Component {
@@ -199,7 +200,7 @@ module.exports = class DevUtils {
             return React.createElement(
                 "div",
                 {
-                  id: "DevUtilsWrapper"
+                id: "DevUtilsWrapper"
                 },
                 React.createElement("h1", {
                             style: {
