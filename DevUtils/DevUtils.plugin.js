@@ -2,7 +2,7 @@
  * @name DevUtils
  * @author p0rtL
  * @description Basic Developer tools for BD
- * @version 1.1 Alpha
+ * @version 1.0 Alpha
  */
 
 
@@ -53,10 +53,9 @@ class ErrorBoundary extends React.Component {
 function updateCss() {
     if (document.querySelector("bd-styles #DevUtils")) {
         BdApi.clearCSS("DevUtils");
-        BdApi.injectCSS("DevUtils", ``);
+        BdApi.injectCSS("DevUtils", `@import url(https://p0rtl6.github.io/BetterDiscord-Plugins/DevUtils/styles.css)`);
     }
-    else { BdApi.injectCSS("DevUtils", ``); }
-    //@import url(https://p0rtl6.github.io/BetterDiscord-Plugins/DevUtils/styles.css)
+    else { BdApi.injectCSS("DevUtils", `@import url(https://p0rtl6.github.io/BetterDiscord-Plugins/DevUtils/styles.css)`); }
 }
 
 module.exports = class DevUtils {
