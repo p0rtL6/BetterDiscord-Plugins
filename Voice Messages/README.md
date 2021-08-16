@@ -16,6 +16,7 @@
 
 This plugin ***requires*** you to install [SoX](http://sox.sourceforge.net) and it must be available in your `$PATH`.
 
+
 ### For Mac OS
 `brew install sox`
 
@@ -24,3 +25,12 @@ This plugin ***requires*** you to install [SoX](http://sox.sourceforge.net) and 
 
 ### For Windows
 [download the binaries](http://sourceforge.net/projects/sox/files/latest/download)
+
+## Editing Environment Variables (Windows)
+
+[Follow this guide](https://www.tenforums.com/tutorials/121855-edit-user-system-environment-variables-windows.html#option5)
+
+* Make sure you are editing your *User* Variables, ***not*** the *System*
+* If there is not already one, create a variable named `Path` 
+* Edit this variable and add the file path you chose when installing soX
+* On Windows the default path is `C:\Program Files (x86)\sox-14-4-2`
