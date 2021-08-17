@@ -12,10 +12,19 @@
 <img src="https://i.imgur.com/CWOea6x.png" height="250px" width="auto"></img>
 <img src="https://i.imgur.com/7JBEoSj.png" height="250px" width="auto"></img>
 
-## Dependency Instructions
+# Dependency Instructions
 
 This plugin ***requires*** you to install [SoX](http://sox.sourceforge.net) and it must be available in your `$PATH`.
 
+## Automatic
+
+* When enabling the plugin you should be prompted to install soX, if not go to the plugin settings and click the install dependencies button
+* Follow the instructions given on the popup
+* Restart your application (fully not just reload)
+* If you are still encountering issues try manually installing with the steps below
+* If you still cannot get it to work, message p0rtL#6592 on Discord, or join my [server](https://discord.gg/sRGX5VRwzQ)
+
+## Manual
 
 ### For Mac OS
 `brew install sox`
