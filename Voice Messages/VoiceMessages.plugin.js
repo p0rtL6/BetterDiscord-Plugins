@@ -130,12 +130,18 @@ class record {
 var recording = "Record Voice Message"
 
 const {React} = BdApi;
+const fs = require('fs')
+const https = require('https')
+const dir = BdApi.Plugins.folder + '\\soX';
 const MenuItem = BdApi.findModuleByProps("MenuItem");
 const ModalStack = BdApi.findModuleByProps("pushLazy");
 const channel = BdApi.findModuleByProps('getChannelId');
+const button = BdApi.findModuleByProps("Button").Button;
 const UploadActions = BdApi.findModuleByProps("pushFiles");
+const TextInput = BdApi.findModuleByDisplayName("TextInput");
 const UploadModal = BdApi.findModuleByDisplayName("UploadModal");
 const ChannelAttachMenu = BdApi.findModule(m => m?.default?.displayName === "ChannelAttachMenu")
+const soXWinUrl = "https://newcontinuum.dl.sourceforge.net/project/sox/sox/14.4.2/sox-14.4.2-win32.exe"
 
 function toggleRecording() {
     if (recording === "Record Voice Message") {
@@ -168,6 +174,185 @@ function startRecord() {
     });
 }
 
+function installsoXWin() {
+
+    let exe = BdApi.Plugins.folder + "\\soX\\soXInstall.exe"
+    let bat = BdApi.Plugins.folder + "\\soX\\path.bat"
+
+    if (!fs.existsSync(dir)) { fs.mkdirSync(dir); }
+
+    if (!fs.existsSync(exe)) {
+        https.get(soXWinUrl, (response) => {
+            const result = []
+            response.on('data', function(chunk) {
+                result.push(chunk)
+            });
+            response.on('end', () => {
+                fs.writeFileSync(exe, Buffer.concat(result))
+            });
+        })
+    }
+
+    if (!fs.existsSync(bat)) {
+        let contents = `
+        setx sox "${dir}"
+        setx path "%%sox%%;%path%"
+        exit
+        `
+        fs.writeFileSync(dir + "\\path.bat", contents);
+    }
+
+    require('child_process').exec(`start "" "${dir + '\\path.bat'}" `)
+    require('child_process').exec(`start "" "${dir + '\\soXInstall.exe'}" `)
+
+    BdApi.saveData("VoiceMessages", "Installed", 1)
+
+}
+
+class winPopup extends React.Component {
+    render() {
+
+        return React.createElement("div", {
+            children: [
+                React.createElement("h1", {
+                    style: {
+                        color: "#ddd",
+                        fontSize: 20,
+                        marginBottom: "10px"
+                    }
+                }, "Instructions"),
+                React.createElement("hr", {}),
+                React.createElement("h1", {
+                    style: {
+                        color: "#ddd",
+                        fontSize: 15,
+                        marginBottom: "10px"
+                    }
+                }, "Click the button below to open the soX installer"),
+                BdApi.React.createElement(button, {
+                    onClick: installsoXWin,
+                    style: {
+                        marginBottom: "10px"
+                    }
+                }, "Open Installer"),
+                React.createElement("h1", {
+                    style: {
+                        color: "#ddd",
+                        fontSize: 15,
+                        marginBottom: "10px"
+                    }
+                }, "Replace the destination folder with this"),
+                React.createElement(TextInput, {
+                    value: dir,
+                    style: {
+                        height: "30px"
+                    }
+                }),
+                React.createElement("h1", {
+                    style: {
+                        color: "#ddd",
+                        fontSize: 15,
+                        marginBottom: "10px"
+                    }
+                }, "Click install"),
+            ]
+        })
+    }
+}
+
+class macPopup extends React.Component {
+    render() {
+
+        BdApi.saveData("VoiceMessages", "Installed", 1)
+
+        return React.createElement("div", {
+            children: [
+                React.createElement("h1", {
+                    style: {
+                        color: "#ddd",
+                        fontSize: 20,
+                        marginBottom: "10px"
+                    }
+                }, "Instructions"),
+                React.createElement("hr", {}),
+                React.createElement("h1", {
+                    style: {
+                        color: "#ddd",
+                        fontSize: 15,
+                        marginBottom: "10px"
+                    }
+                }, "Run the following command"),
+                React.createElement(TextInput, {
+                    value: "brew install sox",
+                    style: {
+                        height: "30px"
+                    }
+                }),
+            ]
+        })
+    }
+}
+
+class linuxPopup extends React.Component {
+    render() {
+
+        BdApi.saveData("VoiceMessages", "Installed", 1)
+
+        return React.createElement("div", {
+            children: [
+                React.createElement("h1", {
+                    style: {
+                        color: "#ddd",
+                        fontSize: 20,
+                        marginBottom: "10px"
+                    }
+                }, "Instructions"),
+                React.createElement("hr", {}),
+                React.createElement("h1", {
+                    style: {
+                        color: "#ddd",
+                        fontSize: 15,
+                        marginBottom: "10px"
+                    }
+                }, "Run the following command"),
+                React.createElement(TextInput, {
+                    value: "sudo apt-get install sox libsox-fmt-all",
+                    style: {
+                        height: "30px"
+                    }
+                }),
+            ]
+        })
+    }
+}
+
+function soX() {
+    if (BdApi.getData("VoiceMessages", "Installed") != 1) {
+        switch(process.platform) {
+            case 'win32':
+                BdApi.showConfirmationModal("Install soX", React.createElement(winPopup, {}), {
+                    confirmText: "okay",
+                });
+                break;
+            case 'darwin':
+                BdApi.showConfirmationModal("Install soX", React.createElement(macPopup, {}), {
+                    confirmText: "okay",
+                });
+                break;
+            case 'linux':
+                BdApi.showConfirmationModal("Install soX", React.createElement(linuxPopup, {}), {
+                    confirmText: "okay",
+                });
+                break;
+        }
+    }
+}
+
+function dependencies() {
+    BdApi.saveData("VoiceMessages", "Installed", 0)
+    soX();
+}
+
 const ChannelAttachMenuPatch = () => BdApi.Patcher.after("ChannelAttachMenuPatch", ChannelAttachMenu, "default", (that, args, value) => {
     const [props] = args;
     value.props.children.push(React.createElement(MenuItem.MenuItem, {
@@ -183,8 +368,14 @@ module.exports = class VoiceMessages {
     load() { }
     start() {
         ChannelAttachMenuPatch();
+        soX();
     }
     stop() {
         BdApi.Patcher.unpatchAll("ChannelAttachMenuPatch");
     }
+    getSettingsPanel() {
+        return BdApi.React.createElement(button, {
+            onClick: dependencies
+        }, "Install Dependencies")
+	}
 }
