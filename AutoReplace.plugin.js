@@ -2,6 +2,11 @@
  * @name AutoReplace
  * @author p0rtL
  * @description Adds the option to set words to be replaced by user defined options
+ * @invite sRGX5VRwzQ
+ * @authorId 258731845267619840
+ * @updateUrl https://p0rtl6.github.io/BetterDiscord-Plugins/AutoReplace.plugin.js
+ * @source https://github.com/p0rtL6/BetterDiscord-Plugins
+ * @website https://p0rtl-5db98.web.app/
  * @version 1.0
 */
 
@@ -11,10 +16,14 @@ const config = {
         authors: [
             {
                 name: "p0rtL",
+                discord_id: "258731845267619840",
+                github_username: "p0rtL6",
             }
         ],
         version: "1.0",
         description: "Adds the option to set words to be replaced by user defined options",
+        github: "https://github.com/p0rtL6/BetterDiscord-Plugins",
+        github_raw: "https://raw.githubusercontent.com/p0rtL6/BetterDiscord-Plugins/main/AutoReplace.plugin.js"
     }
 };
 
@@ -84,16 +93,24 @@ const buildPlugin = ([Plugin, Api]) => {
 
     if (typeof toggles() !== 'object') BdApi.saveData("AutoReplace", "toggles", {})
 
+    function updateKeywords(key, val) {
+        let newKeywords = keywords()
+        newKeywords[key] = val
+        BdApi.saveData("AutoReplace", "keywords", newKeywords);
+    }
+
+    function updateToggles(key, val) {
+        let newToggles = toggles()
+        newToggles[key] = val
+        BdApi.saveData("AutoReplace", "toggles", newToggles);
+    }
+
     function addReplacement() {
         let abbr = BdApi.getData("AutoReplace", "in1")
         let repl = BdApi.getData("AutoReplace", "in2")
         if (abbr && abbr.trim() !== "" && repl && repl.trim() !== "") {
-            let newKeywords = keywords()
-            newKeywords[abbr] = repl
-            BdApi.saveData("AutoReplace", "keywords", newKeywords);
-            let newToggles = toggles()
-            newToggles[abbr] = true
-            BdApi.saveData("AutoReplace", "toggles", newToggles);
+            updateKeywords(abbr, repl)
+            updateToggles(abbr, true)
         } else {
             BdApi.showToast("Invalid Input text", { type: "error" })
         }
@@ -112,7 +129,6 @@ const buildPlugin = ([Plugin, Api]) => {
 
         constructor(props) {
             super(props)
-
         }
 
         render() {
@@ -179,9 +195,7 @@ const buildPlugin = ([Plugin, Api]) => {
                                         className: "AutoReplace-Settings-Switches",
                                         value: toggles()[key],
                                         onChange: (value) => {
-                                            let newToggles = toggles()
-                                            newToggles[key] = value
-                                            BdApi.saveData("AutoReplace", "toggles", newToggles);
+                                            updateToggles(key, value)
                                         },
                                         children: [
                                             key + " ➜ " + keywords()[key],
@@ -199,6 +213,11 @@ const buildPlugin = ([Plugin, Api]) => {
 
     return class AutoReplace extends Plugin {
 
+        getName() { return config.info.name; }
+        getAuthor() { return config.info.authors.map(a => a.name).join(", "); }
+        getDescription() { return config.info.description; }
+        getVersion() { return config.info.version; }
+
         getSettingsPanel = () => React.createElement(SettingsPanel, null)
 
         onStart() {
@@ -208,12 +227,7 @@ const buildPlugin = ([Plugin, Api]) => {
 
         onStop() {
             Patcher.unpatchAll();
-        }
-
-        getName() { return config.info.name; }
-        getAuthor() { return config.info.authors.map(a => a.name).join(", "); }
-        getDescription() { return config.info.description; }
-        getVersion() { return config.info.version; }
+        }   
 
         patchTextareaComponent = () => {
             const EditArea = WebpackModules.getByDisplayName('ChannelEditorContainer');
