@@ -41,6 +41,7 @@ const buildPlugin = ([Plugin, Api]) => {
 
     const pluginCss = `
     .AutoReplace-Settings-Input * {
+        margin-bottom: 10px;
         width: 98%;
     }
     .AutoReplace-Settings-Delete {
@@ -92,6 +93,7 @@ const buildPlugin = ([Plugin, Api]) => {
     }
 
     if (typeof toggles() !== 'object') BdApi.saveData("AutoReplace", "toggles", {})
+    if (typeof keywords() !== 'object') BdApi.saveData("AutoReplace", "keywords", {})
 
     function updateKeywords(key, val) {
         let newKeywords = keywords()
@@ -274,6 +276,18 @@ module.exports = window.hasOwnProperty("ZeresPluginLibrary")
                         require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
                             if (error) return require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
                             await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
+                            BdApi.showConfirmationModal(
+                                "Library Succesfully installed",
+                                ["Please Reload Discord"],
+                                {
+                                    confirmText: "Reload",
+                                    cancelText: "cancel",
+                                    onConfirm: () => {
+                                        BdApi.Plugins.enable("ZeresPluginLibrary")
+                                        location.reload()
+                                    }
+                                }
+                            )
                         });
                     }
                 }
